@@ -28,7 +28,7 @@
 
 
 
-// ── Pin Definitions ──────────────────────────────────────────────────────────
+//  Pin Definitions 
 
 const int PIR_LID_PIN    = 2;    // PIR 1: approach sensor → opens lid
 
@@ -40,7 +40,7 @@ const int STATUS_LED_PIN = 13;   // Built-in LED
 
 
 
-// ── Servo Angles ─────────────────────────────────────────────────────────────
+// Angles 
 
 const int LID_CLOSED = 0;        // Adjust to match your lid geometry
 
@@ -48,7 +48,7 @@ const int LID_OPEN   = 90;       // Adjust to match your lid geometry
 
 
 
-// ── Timing ───────────────────────────────────────────────────────────────────
+// Timing 
 
 const unsigned long LID_OPEN_DURATION = 5000;  // Lid stays open for 5 seconds
 
@@ -56,7 +56,7 @@ const unsigned long COUNT_DEBOUNCE    = 1000;  // Min ms between counts
 
 
 
-// ── State ────────────────────────────────────────────────────────────────────
+// State 
 
 Servo lidServo;
 
@@ -76,7 +76,7 @@ unsigned long lastCountTime  = 0;
 
 
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 
 void setup() {
 
@@ -116,7 +116,7 @@ void setup() {
 
 
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 
 void loop() {
 
@@ -178,7 +178,7 @@ void loop() {
 
 
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 
 void openLid() {
 
