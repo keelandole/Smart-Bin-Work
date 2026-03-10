@@ -1,0 +1,209 @@
+/*
+
+ *   - Servo Motor      → Pin 9   (opens/closes the bin lid)
+
+ *   - PIR Sensor 1     → Pin 2   (detects approach → opens lid)
+
+ *   - PIR Sensor 2     → Pin 3   (detects object inserted → counts items)
+
+ *   - Status LED       → Pin 13  (built-in LED, on when lid is open)
+
+ *
+
+ * Wiring:
+
+ *   PIR Sensor 1:  VCC → 5V | GND → GND | OUT → Pin 2
+
+ *   PIR Sensor 2:  VCC → 5V | GND → GND | OUT → Pin 3
+
+ *   Servo Motor:   VCC → 5V | GND → GND | Signal → Pin 9
+
+ *   (If servo browns out the board, power its VCC from an external 5V supply)
+
+ */
+
+
+
+#include <Servo.h>
+
+
+
+// ── Pin Definitions ──────────────────────────────────────────────────────────
+
+const int PIR_LID_PIN    = 2;    // PIR 1: approach sensor → opens lid
+
+const int PIR_COUNT_PIN  = 3;    // PIR 2: inside sensor   → counts items
+
+const int SERVO_PIN      = 9;    // Servo signal pin
+
+const int STATUS_LED_PIN = 13;   // Built-in LED
+
+
+
+// ── Servo Angles ─────────────────────────────────────────────────────────────
+
+const int LID_CLOSED = 0;        // Adjust to match your lid geometry
+
+const int LID_OPEN   = 90;       // Adjust to match your lid geometry
+
+
+
+// ── Timing ───────────────────────────────────────────────────────────────────
+
+const unsigned long LID_OPEN_DURATION = 5000;  // Lid stays open for 5 seconds
+
+const unsigned long COUNT_DEBOUNCE    = 1000;  // Min ms between counts
+
+
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+Servo lidServo;
+
+
+
+bool          lidIsOpen      = false;
+
+unsigned long lidOpenedAt    = 0;
+
+
+
+int           itemCount      = 0;
+
+bool          lastCountState = LOW;
+
+unsigned long lastCountTime  = 0;
+
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+void setup() {
+
+  Serial.begin(9600);
+
+
+
+  pinMode(PIR_LID_PIN,    INPUT);
+
+  pinMode(PIR_COUNT_PIN,  INPUT);
+
+  pinMode(STATUS_LED_PIN, OUTPUT);
+
+
+
+  lidServo.attach(SERVO_PIN);
+
+  lidServo.write(LID_CLOSED);
+
+
+
+  Serial.println("================================");
+
+  Serial.println("  Smart Bin - Initialising...  ");
+
+  Serial.println("  Warming up PIR sensors (5s)  ");
+
+  Serial.println("================================");
+
+  delay(5000);   // HC-SR501 sensors need warm-up time
+
+
+
+  Serial.println("Ready! Item count: 0");
+
+}
+
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+void loop() {
+
+
+
+  // 1. LID CONTROL — PIR Sensor 1
+
+  bool approach = (digitalRead(PIR_LID_PIN) == HIGH);
+
+
+
+  if (approach && !lidIsOpen) {
+
+    openLid();
+
+  }
+
+
+
+  if (lidIsOpen && (millis() - lidOpenedAt >= LID_OPEN_DURATION)) {
+
+    closeLid();
+
+  }
+
+
+
+  // 2. ITEM COUNTING — PIR Sensor 2
+
+  bool countNow = (digitalRead(PIR_COUNT_PIN) == HIGH);
+
+
+
+  if (countNow && !lastCountState) {              // Rising edge only
+
+    unsigned long now = millis();
+
+    if (lidIsOpen && (now - lastCountTime >= COUNT_DEBOUNCE)) {
+
+      itemCount++;
+
+      lastCountTime = now;
+
+      Serial.print("Item inserted! Total: ");
+
+      Serial.println(itemCount);
+
+    }
+
+  }
+
+
+
+  lastCountState = countNow;
+
+  delay(50);
+
+}
+
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+void openLid() {
+
+  lidServo.write(LID_OPEN);
+
+  lidIsOpen   = true;
+
+  lidOpenedAt = millis();
+
+  digitalWrite(STATUS_LED_PIN, HIGH);
+
+  Serial.println("Lid OPEN");
+
+}
+
+
+
+void closeLid() {
+
+  lidServo.write(LID_CLOSED);
+
+  lidIsOpen = false;
+
+  digitalWrite(STATUS_LED_PIN, LOW);
+
+  Serial.println("Lid CLOSED");
+
+}
