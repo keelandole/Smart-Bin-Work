@@ -1,2 +1,2 @@
-#define SECRET_SSID     "VodafoneMobileWifi" //internet name
-#define SECRET_PASS     "PooPoohead" // password 
+#define SECRET_SSID     "Oisin iPhone" //internet name
+#define SECRET_PASS     "Pink12345" // password 
