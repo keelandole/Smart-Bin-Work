@@ -207,3 +207,118 @@ void closeLid() {
   Serial.println("Lid CLOSED");
 
 }
+
+
+
+//other options for code we have
+#include <Servo.h>
+
+
+
+Servo lidServo;
+
+
+
+const int trigPin = 9;
+
+const int echoPin = 10;
+
+const int servoPin = 6;
+
+
+
+long duration;
+
+int distance;
+
+
+
+int openAngle = 90;
+
+int closeAngle = 0;
+
+
+
+void setup() {
+
+  Serial.begin(9600);
+
+
+
+  pinMode(trigPin, OUTPUT);
+
+  pinMode(echoPin, INPUT);
+
+
+
+  lidServo.attach(servoPin);
+
+  lidServo.write(closeAngle);
+
+
+
+  Serial.println("Smart Bin Started");
+
+}
+
+
+
+void loop() {
+
+
+
+  // Send ultrasonic pulse
+
+  digitalWrite(trigPin, LOW);
+
+  delayMicroseconds(2);
+
+
+
+  digitalWrite(trigPin, HIGH);
+
+  delayMicroseconds(10);
+
+  digitalWrite(trigPin, LOW);
+
+
+
+  duration = pulseIn(echoPin, HIGH);
+
+
+
+  distance = duration * 0.034 / 2;
+
+
+
+  Serial.print("Distance: ");
+
+  Serial.println(distance);
+
+
+
+  // If hand is close → open lid
+
+  if (distance < 20) {
+
+    Serial.println("Opening lid");
+
+    lidServo.write(openAngle);
+
+    delay(3000);
+
+
+
+    Serial.println("Closing lid");
+
+    lidServo.write(closeAngle);
+
+    delay(1000);
+
+  }
+
+
+
+  delay(500);
+
+}
